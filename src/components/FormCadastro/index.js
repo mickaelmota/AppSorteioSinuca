@@ -10,18 +10,45 @@ export default function FormCadastro(props) {
     const [mensagemValidacaoNome, setMensagemValidacaoNome] = useState("");
     const [mensagemValidacaoLocalidade, setMensagemValidacaoLocalidade] = useState("");
     
+    function novoJogador() {
+        if (!validarForm())
+            return;
+
+        api.post("/api/Jogadores", {
+            "id": 0,
+            "nome": nome,
+            "localidade": localidade,
+            "pago": true,
+            "ativo": true,
+            "colocacao": 0,
+            "usuarioCadastro": "Admin",
+            "dataCadastro": "2022-05-22T20:58:38.714Z",
+            "usuarioEdicao": null,
+            "dataEdicao": null,
+            "quantidadeRepeticoes": 1
+        })
+        .then((response) => props.executar(false, true))
+        .catch((err) => {
+        console.error("ops! ocorreu um erro" + err);
+        });
+    }
+    
     function validarForm() {
         if (!nome) {
             setMensagemValidacaoNome("Preencha o nome");
+            return false;
         } else {
             setMensagemValidacaoNome("");
         }
 
         if (!localidade) {
             setMensagemValidacaoLocalidade("Preencha a localidade");
+            return false;
         } else {
             setMensagemValidacaoLocalidade("");
         }
+
+        return true;
     }
 
     return (
@@ -49,7 +76,7 @@ export default function FormCadastro(props) {
 
                 <TouchableOpacity
                 style={styles.formButton}
-                    onPress={() => validarForm()}
+                    onPress={() => novoJogador()}
                 >
                     <Text style={styles.formTextButton}>Salvar</Text>
                 </TouchableOpacity>

@@ -1,51 +1,45 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, Text, FlatList, TouchableOpacity, Modal, Pressable } from 'react-native';
 import styles from './style';
+import api from "../Services/api";
 
 import FormCadastro from '../FormCadastro';
+import { Button } from 'react-native-web';
 
 export default function Body() {
     const [modalVisible, setModalVisible] = useState(false);
+    const [jogadores, setJogadores] = useState([]);
 
-    function toggleModal(visible) {
+    function toggleModal(visible, refresh) {
         setModalVisible(visible);
+
+        if (refresh)
+            refreshPage();
     }
 
-    const jogadores = [
-        {id: 1, nome: "Usuário teste A", localidade: "Localidade 1", ativo: true, colocacao: 0},
-        {id: 2, nome: "Usuário teste B", localidade: "Localidade 2", ativo: true, colocacao: 0},
-        {id: 3, nome: "Usuário teste C", localidade: "Localidade 3", ativo: true, colocacao: 0},
-        {id: 4, nome: "Usuário teste D", localidade: "Localidade 4", ativo: true, colocacao: 0},
-        {id: 5, nome: "Usuário teste E", localidade: "Localidade 5", ativo: true, colocacao: 0},
-        {id: 6, nome: "Usuário teste A", localidade: "Localidade 1", ativo: true, colocacao: 0},
-        {id: 7, nome: "Usuário teste B", localidade: "Localidade 2", ativo: true, colocacao: 0},
-        {id: 8, nome: "Usuário teste C", localidade: "Localidade 3", ativo: true, colocacao: 0},
-        {id: 9, nome: "Usuário teste D", localidade: "Localidade 4", ativo: true, colocacao: 0},
-        {id: 10, nome: "Usuário teste E", localidade: "Localidade 5", ativo: true, colocacao: 0},
-        {id: 11, nome: "Usuário teste A", localidade: "Localidade 1", ativo: true, colocacao: 0},
-        {id: 12, nome: "Usuário teste B", localidade: "Localidade 2", ativo: true, colocacao: 0},
-        {id: 13, nome: "Usuário teste C", localidade: "Localidade 3", ativo: true, colocacao: 0},
-        {id: 14, nome: "Usuário teste D", localidade: "Localidade 4", ativo: true, colocacao: 0},
-        {id: 15, nome: "Usuário teste E", localidade: "Localidade 5", ativo: true, colocacao: 0},
-        {id: 16, nome: "Usuário teste A", localidade: "Localidade 1", ativo: true, colocacao: 0},
-        {id: 17, nome: "Usuário teste B", localidade: "Localidade 2", ativo: true, colocacao: 0},
-        {id: 18, nome: "Usuário teste C", localidade: "Localidade 3", ativo: true, colocacao: 0},
-        {id: 19, nome: "Usuário teste D", localidade: "Localidade 4", ativo: true, colocacao: 0},
-        {id: 20, nome: "Usuário teste E", localidade: "Localidade 5", ativo: true, colocacao: 0},
-        {id: 21, nome: "Usuário teste A", localidade: "Localidade 1", ativo: true, colocacao: 0},
-        {id: 22, nome: "Usuário teste B", localidade: "Localidade 2", ativo: true, colocacao: 0},
-        {id: 23, nome: "Usuário teste C", localidade: "Localidade 3", ativo: true, colocacao: 0},
-        {id: 24, nome: "Usuário teste D", localidade: "Localidade 4", ativo: true, colocacao: 0},
-        {id: 25, nome: "Usuário teste E", localidade: "Localidade 5", ativo: true, colocacao: 0},
-    ]; 
+    useEffect(() => {
+        api
+          .get("/api/Jogadores")
+          .then((response) => setJogadores(response.data.data))
+          .catch((err) => {
+            console.error("ops! ocorreu um erro" + err);
+          });
+    }, []);
+
+    function refreshPage() {
+        window.location.reload(false);
+    }
 
     return (
     <View style={styles.containerBody}>
-        <FlatList 
-        data={jogadores}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-                    <View>
+       
+        {jogadores.length > 0 ?
+            <FlatList 
+            data={jogadores}
+            keyExtractor={(el) => el.id}
+            renderItem={({ item }) => {
+                return (
+                    <View> 
                         <TouchableOpacity style={styles.itemTouchFlatFlist} onPress={() => alert('Item pressionado!')}>
                             <View style={styles.itemFlatList}>
                                 <Text style={styles.textFlatList}>
@@ -60,29 +54,37 @@ export default function Body() {
                         <View style={styles.separatorFlatList}></View>
                     </View>
                 )
-        }
-        />
-
-            <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => {
-            Alert.alert("Modal has been closed.");
-            setModalVisible(!modalVisible);
             }}
-            >
-                <FormCadastro executar={toggleModal.bind(this)}  />
-            </Modal>
+            />
+        : 
+            <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+                <Text>Nenhum jogador encontrado!</Text>
+            </View>
+        }   
 
-            <Pressable
-            onPress={() => w(true)}
-            >
-                <TouchableOpacity style={styles.btnAdicionar} onPress={() => setModalVisible(!modalVisible)}>
-                    <Text style={styles.textBtnAdicionar}>+</Text>
-                </TouchableOpacity>
-            </Pressable>
+        <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+        Alert.alert("Modal has been closed.");
+        setModalVisible(!modalVisible);
+        }}
+        >
+            <FormCadastro executar={toggleModal.bind(this, false)}  />
+        </Modal>
+
+        <Pressable
+        onPress={() => w(true)}
+        >
+            <TouchableOpacity style={styles.btnAdicionar} onPress={() => setModalVisible(!modalVisible)}>
+                <Text style={styles.textBtnAdicionar}>+</Text>
+            </TouchableOpacity>
+        </Pressable>
             
+        <View style={{margin: 2}}>
+            <Button title='Atualizar' onPress={() => refreshPage()}></Button>
+        </View>
     </View>
     );
 }
