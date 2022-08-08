@@ -5,17 +5,18 @@ import styles from "./styles";
 import api from "../Services/api";
 
 export default function FormCadastro(props) {
-    const [nome, setNome] = useState("");
-    const [localidade, setLocalidade] = useState("");
+    const [id, setId] = useState(props.id ? props.id : 0);
+    const [nome, setNome] = useState(props.nome ? props.nome : "");
+    const [localidade, setLocalidade] = useState(props.localidade ? props.localidade : "");
     const [mensagemValidacaoNome, setMensagemValidacaoNome] = useState("");
     const [mensagemValidacaoLocalidade, setMensagemValidacaoLocalidade] = useState("");
     
-    function novoJogador() {
+    function salvarJogador() {
         if (!validarForm())
             return;
 
-        api.post("/api/Jogadores", {
-            "id": 0,
+        api.post("/api/Jogador", {
+            "id": id,
             "nome": nome,
             "localidade": localidade,
             "pago": true,
@@ -32,7 +33,7 @@ export default function FormCadastro(props) {
         console.error("ops! ocorreu um erro" + err);
         });
     }
-    
+
     function validarForm() {
         if (!nome) {
             setMensagemValidacaoNome("Preencha o nome");
@@ -76,7 +77,7 @@ export default function FormCadastro(props) {
 
                 <TouchableOpacity
                 style={styles.formButton}
-                    onPress={() => novoJogador()}
+                    onPress={() => salvarJogador()}
                 >
                     <Text style={styles.formTextButton}>Salvar</Text>
                 </TouchableOpacity>

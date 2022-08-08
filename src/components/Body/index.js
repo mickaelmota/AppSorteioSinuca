@@ -9,17 +9,21 @@ import { Button } from 'react-native-web';
 export default function Body() {
     const [modalVisible, setModalVisible] = useState(false);
     const [jogadores, setJogadores] = useState([]);
+    const [idJogador, setIdJogador] = useState(0);
+    const [nomeJogador, setNomeJogador] = useState("");
+    const [localidadeJogador, setLocalidadeJogador] = useState("");
+    
 
     function toggleModal(visible, refresh) {
         setModalVisible(visible);
 
         if (refresh)
-            refreshPage();
+            window.location.reload(false);
     }
 
     useEffect(() => {
         api
-          .get("/api/Jogadores")
+          .get("/api/Jogador")
           .then((response) => setJogadores(response.data.data))
           .catch((err) => {
             console.error("ops! ocorreu um erro" + err);
@@ -28,6 +32,14 @@ export default function Body() {
 
     function refreshPage() {
         window.location.reload(false);
+    }
+
+    function carregarModalEdicaoJogador(jogador) {
+        setIdJogador(jogador.id);
+        setNomeJogador(jogador.nome);
+        setLocalidadeJogador(jogador.localidade);
+
+        setModalVisible(true);
     }
 
     return (
@@ -40,7 +52,7 @@ export default function Body() {
             renderItem={({ item }) => {
                 return (
                     <View> 
-                        <TouchableOpacity style={styles.itemTouchFlatFlist} onPress={() => alert('Item pressionado!')}>
+                        <TouchableOpacity style={styles.itemTouchFlatFlist} onPress={() => carregarModalEdicaoJogador(item)}>
                             <View style={styles.itemFlatList}>
                                 <Text style={styles.textFlatList}>
                                     {item.nome}
@@ -71,7 +83,7 @@ export default function Body() {
         setModalVisible(!modalVisible);
         }}
         >
-            <FormCadastro executar={toggleModal.bind(this, false)}  />
+            <FormCadastro id={idJogador} nome={nomeJogador} localidade={localidadeJogador} executar={toggleModal.bind(this, false)}  />
         </Modal>
 
         <Pressable
